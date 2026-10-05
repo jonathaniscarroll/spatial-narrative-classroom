@@ -3,6 +3,10 @@ name: Build and Deploy Twine
 on:
   push:
     branches: [ main ]
+  repository_dispatch:
+    types: [ publish ]          # fired by the Supabase "publish" Edge Function
+  schedule:
+    - cron: '17 9 * * 1'        # weekly rebuild; also pings Supabase so the free project is not paused
   workflow_dispatch:
 
 permissions:
@@ -17,19 +21,27 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
 
       - name: Verify vendored tools
         run: |
           test -f vendor/tweego/tweego
           test -f vendor/storyformats/sugarcube-2/format.js
           chmod +x vendor/tweego/tweego
+
+      - name: Export student content from Supabase
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+        run: |
+          curl -sfS -X POST "$SUPABASE_URL/rest/v1/rpc/export_twee" \
+            -H "apikey: $SUPABASE_ANON_KEY" -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            -H "Content-Type: application/json" -d '{}' | jq -r . > story/content.twee
+          test -s story/content.twee
+          grep -q '^:: Start' story/content.twee
+          grep -c '^:: ' story/content.twee
 
       - name: Build story
         env:
@@ -40,17 +52,13 @@ jobs:
 
       - name: Copy authoring tool
         run: |
-          if [ -d author ]; then
-            cp -r author build/author
-          fi
+          if [ -d author ]; then cp -r author build/author; fi
+          if [ -d media ]; then cp -r media build/media; fi
 
       - name: Verify output
-        run: |
-          test -f build/index.html
-          ls -la build
+        run: test -f build/index.html
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: build
 
@@ -60,8 +68,6 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4

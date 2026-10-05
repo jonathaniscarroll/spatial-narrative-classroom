@@ -150,12 +150,18 @@
 
 <div class="notice-bar" id="noticeBar"></div>
 
-<div class="token-row">
-  <label for="ghToken">GitHub Token:</label>
-  <input type="password" id="ghToken" placeholder="ghp_..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-  <button class="btn primary" id="loadBtn" title="Load story/main.twee from GitHub">Load</button>
-  <button class="btn primary" id="saveBtn" title="Save story/main.twee to GitHub">Save</button>
-  <input type="text" id="commitMsgInput" placeholder="Commit message (optional)" autocorrect="off" autocapitalize="off" spellcheck="false" style="min-width:120px;flex:2;">
+<div class="token-row" id="joinRow">
+  <label for="classCode">Class code:</label>
+  <input type="password" id="classCode" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <label for="displayName">Your name:</label>
+  <input type="text" id="displayName" maxlength="40" autocomplete="off" spellcheck="false">
+  <button class="btn primary" id="joinBtn">Join</button>
+</div>
+<div class="token-row" id="actionRow" style="display:none">
+  <button class="btn primary" id="loadBtn" title="Reload the shared story from the server">Reload</button>
+  <button class="btn primary" id="saveBtn" title="Save your changes to the shared story">Save</button>
+  <button class="btn" id="publishBtn" title="Rebuild the public reader from the shared story">Publish</button>
+  <span id="presence" style="font-size:11px;flex:3;min-width:140px"></span>
 </div>
 
 <div class="toolbar">
@@ -223,16 +229,13 @@
   <span id="passageCount"></span>
 </div>
 
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const OWNER = 'jonathaniscarroll';
-const REPO = 'spatial-narrative';
-const FILE_PATH = 'story/main.twee';
-const BRANCH = 'main';
 
 let passages = [];
 let selectedIndex = null;
-let fileSha = null;
 let markers = {};
 let linkedNodeSet = new Set();
 let showAllPassages = false;
@@ -325,7 +328,6 @@ document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => switchTab(tab.dataset.tab));
 });
 
-function getToken() { return document.getElementById('ghToken').value.trim(); }
 
 function setStatus(msg) { document.getElementById('statusText').textContent = msg; }
 
@@ -610,63 +612,29 @@ function selectPassage(i) {
   if (isFinite(p.lat) && isFinite(p.lng)) map.panTo([p.lat, p.lng]);
 }
 
-// ── Generic media upload to GitHub ───────────────────────────────────────
-// Returns the repo-root path (e.g. "media/foo.mp3") on success, or null.
-async function uploadMediaFileToGitHub(file, progressElId, labelOverride) {
-  const token = getToken();
-  if (!token) { showNotice('Enter a GitHub token before uploading.', 'error'); return null; }
-
+// ── Media upload (Supabase Storage) ──────────────────────────────────────
+// Returns the full public URL on success. Stored directly in @image / @audio;
+// the reader uses any value containing "/" as-is.
+async function uploadMediaFileToGitHub(file, progressElId) {
   const progress = progressElId ? document.getElementById(progressElId) : null;
+  if (!myUserId) { showNotice('Join the class first.', 'error'); return null; }
   if (progress) { progress.style.display = 'block'; progress.textContent = 'Uploading…'; }
-
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      try {
-        const base64 = ev.target.result.split(',')[1];
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-        const mediaPath = 'media/' + safeName;
-        const commitMsg = (labelOverride || 'Add media') + ' ' + safeName + ' via authoring tool';
-
-        let existingSha = null;
-        try {
-          const check = await fetch(
-            `https://api.github.com/repos/${OWNER}/${REPO}/contents/${mediaPath}?ref=${BRANCH}`,
-            { headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' } }
-          );
-          if (check.ok) { const existing = await check.json(); existingSha = existing.sha; }
-        } catch (_) {}
-
-        const body = { message: commitMsg, content: base64, branch: BRANCH };
-        if (existingSha) body.sha = existingSha;
-
-        const res = await fetch(
-          `https://api.github.com/repos/${OWNER}/${REPO}/contents/${mediaPath}`,
-          {
-            method: 'PUT',
-            headers: {
-              'Authorization': 'token ' + token,
-              'Accept': 'application/vnd.github.v3+json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body)
-          }
-        );
-        if (!res.ok) { const err = await res.json(); throw new Error(err.message || 'HTTP ' + res.status); }
-        if (progress) { progress.style.display = 'none'; }
-        resolve(mediaPath);
-      } catch (e) {
-        if (progress) { progress.style.display = 'none'; }
-        reject(e);
-      }
-    };
-    reader.readAsDataURL(file);
-  });
+  try {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const path = Date.now() + '-' + safeName;
+    const { error } = await sb.storage.from('media').upload(path, file, { contentType: file.type || undefined });
+    if (error) throw error;
+    return sb.storage.from('media').getPublicUrl(path).data.publicUrl;
+  } finally {
+    if (progress) progress.style.display = 'none';
+  }
 }
+async function uploadImageToGitHub(file) { return uploadMediaFileToGitHub(file, 'imageUploadProgress'); }
 
-// Backward-compat wrapper for existing image upload call sites
-async function uploadImageToGitHub(file) {
-  return uploadMediaFileToGitHub(file, 'imageUploadProgress', 'Add image');
+function mediaSrc(v) {
+  if (!v) return '';
+  if (/^https?:\/\//.test(v)) return v;
+  return '../' + (v.indexOf('/') === -1 ? 'media/' + v : v);
 }
 
 // ── Render the links chips UI ──────────────────────────────────────────────
@@ -753,12 +721,12 @@ function renderEditor() {
   if (!Array.isArray(p.links)) p.links = [];
 
   const imagePreviewHtml = p.image
-    ? `<img class="image-preview" src="https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${p.image}" alt="passage image">`
+    ? `<img class="image-preview" src="${escAttr(mediaSrc(p.image))}" alt="passage image">`
     : '';
 
   // Audio preview: the reader stores bare filename in @audio, so path is media/<filename>
   const audioSrc = p.audio
-    ? 'https://raw.githubusercontent.com/' + OWNER + '/' + REPO + '/' + BRANCH + '/media/' + p.audio
+    ? mediaSrc(p.audio)
     : '';
   const audioPreviewHtml = p.audio
     ? `<audio class="audio-preview" controls src="${escAttr(audioSrc)}"></audio>`
@@ -856,7 +824,7 @@ function renderEditor() {
     const thenSel = buildPassageSelect(p.then || '', selectedIndex, (name) => {
       passages[selectedIndex].then = name || null;
       updateRawPreview();
-      if (name) setStatus('Second stage set to "' + name + '". Apply + Save to commit.');
+      if (name) setStatus('Second stage set to "' + name + '". Apply + Save to share it.');
     });
     thenSel.id = 'f_then';
     const hint = document.createElement('span');
@@ -892,14 +860,14 @@ function renderEditor() {
       if (mediaPath) {
         passages[selectedIndex].image = mediaPath;
         updateRawPreview();
-        setStatus('Image uploaded to ' + mediaPath + '. Apply + Save to commit.');
+        setStatus('Image uploaded to ' + mediaPath + '. Apply + Save to share it.');
         showNotice('Image uploaded: ' + mediaPath, 'success');
         document.getElementById('imageFilename').textContent = mediaPath;
         const existing = document.querySelector('.image-preview');
         if (existing) existing.remove();
         const img = document.createElement('img');
         img.className = 'image-preview';
-        img.src = 'https://raw.githubusercontent.com/' + OWNER + '/' + REPO + '/' + BRANCH + '/' + mediaPath;
+        img.src = mediaSrc(mediaPath);
         img.alt = 'passage image';
         document.getElementById('imageRow').insertBefore(img, document.querySelector('.image-upload-controls'));
         if (!document.getElementById('removeImageBtn')) {
@@ -924,7 +892,7 @@ function renderEditor() {
     if (preview) preview.remove();
     const rmBtn = document.getElementById('removeImageBtn');
     if (rmBtn) rmBtn.remove();
-    setStatus('Image removed from passage. Apply + Save to commit.');
+    setStatus('Image removed from passage. Apply + Save to share it.');
   }
   const rmBtnEl = document.getElementById('removeImageBtn');
   if (rmBtnEl) rmBtnEl.addEventListener('click', removeImage);
@@ -935,7 +903,7 @@ function renderEditor() {
     progress.style.display = 'block'; progress.textContent = 'Uploading…';
     setStatus('Uploading audio "' + file.name + '"…');
     try {
-      const mediaPath = await uploadMediaFileToGitHub(file, null, 'Add audio');
+      const mediaPath = await uploadMediaFileToGitHub(file, null);
       if (mediaPath) {
         // Reader expects bare filename; strip the "media/" prefix
         const bareName = mediaPath.replace(/^media\//, '');
@@ -943,14 +911,14 @@ function renderEditor() {
         updateRawPreview();
         progress.style.display = 'none';
         document.getElementById('audioFilename').textContent = bareName;
-        setStatus('Audio uploaded: ' + mediaPath + '. Apply + Save to commit.');
+        setStatus('Audio uploaded: ' + mediaPath + '. Apply + Save to share it.');
         showNotice('Audio uploaded: ' + mediaPath, 'success');
         // Show / refresh the audio preview element
         const existingAudio = document.querySelector('.audio-preview');
         if (existingAudio) existingAudio.remove();
         const audioEl = document.createElement('audio');
         audioEl.className = 'audio-preview'; audioEl.controls = true;
-        audioEl.src = 'https://raw.githubusercontent.com/' + OWNER + '/' + REPO + '/' + BRANCH + '/media/' + bareName;
+        audioEl.src = mediaSrc(bareName);
         document.getElementById('audioRow').insertBefore(audioEl, document.querySelector('.audio-upload-controls'));
         if (!document.getElementById('removeAudioBtn')) {
           const rmBtn = document.createElement('button');
@@ -986,7 +954,7 @@ function renderEditor() {
     // Stop any active recording
     if (_mediaRecorder && _mediaRecorder.state !== 'inactive') _mediaRecorder.stop();
     if (_recordStream) { _recordStream.getTracks().forEach(t => t.stop()); _recordStream = null; }
-    setStatus('Audio removed from passage. Apply + Save to commit.');
+    setStatus('Audio removed from passage. Apply + Save to share it.');
   }
   const rmAudioBtnEl = document.getElementById('removeAudioBtn');
   if (rmAudioBtnEl) rmAudioBtnEl.addEventListener('click', removeAudio);
@@ -1051,7 +1019,7 @@ function renderEditor() {
       p2.links.push(name);
       renderLinkChips();
       updateRawPreview();
-      setStatus('Linked "' + name + '" to "' + p2.name + '". Apply + Save to commit.');
+      setStatus('Linked "' + name + '" to "' + p2.name + '". Apply + Save to share it.');
     }
     linkSel.value = '';
   });
@@ -1143,53 +1111,202 @@ function decodeBase64Unicode(str) {
     '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
 }
 
+const CFG = window.CLASSROOM_CONFIG || {};
+const sb = supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey);
+const saved = new Map();          // name -> { source, version } as last seen on the server
+const locksMap = new Map();       // name -> { user_id, display_name, expires_at }
+let myUserId = null, myName = '';
+let myLock = null, lockedByOther = null, lockTimer = null, channel = null;
+
+function friendly(e) {
+  const m = (e && e.message) ? e.message : String(e);
+  let x;
+  if ((x = m.match(/locked_by:(.+)/))) return 'Locked: ' + x[1] + ' is editing this passage.';
+  if (m.includes('conflict')) return 'Someone saved a newer version. Reload to see it.';
+  if (m.includes('exists')) return 'A passage with that name already exists.';
+  if (m.includes('bad_code')) return 'Wrong class code.';
+  if (m.includes('reserved_name') || m.includes('forbidden_tag')) return 'That name or tag is reserved.';
+  if (m.includes('cannot_delete_start')) return 'The Start passage cannot be deleted.';
+  if (m.includes('bad_source') || m.includes('bad_name')) return 'Invalid passage name or text.';
+  return m;
+}
+
+function renderPresence() {
+  const now = Date.now();
+  const parts = [];
+  locksMap.forEach((l, name) => {
+    if (new Date(l.expires_at).getTime() > now && l.user_id !== myUserId) parts.push(l.display_name + ' → ' + name);
+  });
+  document.getElementById('presence').textContent = parts.length ? 'Editing now: ' + parts.join(' · ') : 'No one else is editing.';
+}
+
+function setReadOnly(holder) {
+  const panel = document.getElementById('editorPanel');
+  if (!panel) return;
+  panel.querySelectorAll('input,textarea,select,button').forEach(el => { el.disabled = true; });
+  if (holder) showNotice(holder + ' is editing this passage. It is read-only until they finish.', 'error');
+}
+
+async function releaseLock(name) {
+  if (!name) return;
+  try { await sb.rpc('release_lock', { p_name: name }); } catch (_) {}
+  if (myLock === name) myLock = null;
+}
+
+async function lockForSelection() {
+  if (selectedIndex === null || !passages[selectedIndex]) return;
+  const name = passages[selectedIndex].name;
+  if (myLock && myLock !== name) await releaseLock(myLock);
+  const { data, error } = await sb.rpc('acquire_lock', { p_name: name });
+  if (selectedIndex === null || !passages[selectedIndex] || passages[selectedIndex].name !== name) return;
+  if (error) { showNotice(friendly(error), 'error'); return; }
+  if (data.ok) { myLock = name; lockedByOther = null; }
+  else { myLock = null; lockedByOther = data.holder; setReadOnly(data.holder); }
+}
+
+const _origSelectPassage = selectPassage;
+selectPassage = function (i) { _origSelectPassage(i); lockForSelection(); };
+
+function startHeartbeat() {
+  if (lockTimer) return;
+  lockTimer = setInterval(async () => {
+    renderPresence();
+    if (!myLock) return;
+    const { data, error } = await sb.rpc('acquire_lock', { p_name: myLock });
+    if (!error && data && !data.ok) { lockedByOther = data.holder; myLock = null; setReadOnly(data.holder); }
+  }, 45000);
+}
+window.addEventListener('pagehide', () => { if (myLock) sb.rpc('release_lock', { p_name: myLock }); });
+
+function isDirty(p) { const s = saved.get(p.name); return !s || s.source !== serializePassage(p); }
+
+function subscribeRealtime() {
+  if (channel) return;
+  channel = sb.channel('story')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'passages' }, payload => {
+      if (payload.eventType === 'DELETE') {
+        const name = payload.old.name;
+        const selName = selectedIndex !== null && passages[selectedIndex] ? passages[selectedIndex].name : null;
+        const idx = passages.findIndex(p => p.name === name);
+        if (idx >= 0) passages.splice(idx, 1);
+        saved.delete(name);
+        selectedIndex = selName && selName !== name ? passages.findIndex(p => p.name === selName) : null;
+        if (selectedIndex === -1) selectedIndex = null;
+        buildMarkers(); renderPassageList(document.getElementById('passageSearch').value);
+        return;
+      }
+      const row = payload.new;
+      if (row.updated_by === myUserId) return;
+      const idx = passages.findIndex(p => p.name === row.name);
+      if (idx >= 0 && isDirty(passages[idx])) {
+        showNotice(row.updated_name + ' saved "' + row.name + '" while you have unsaved changes there.', 'error');
+        return;
+      }
+      const p = parseTwee(row.source)[0];
+      if (!p) return;
+      if (idx >= 0) passages[idx] = p; else passages.push(p);
+      saved.set(row.name, { source: serializePassage(p), version: row.version });
+      buildMarkers(); renderPassageList(document.getElementById('passageSearch').value);
+      if (idx >= 0 && idx === selectedIndex) { renderEditor(); updateRawPreview(); if (lockedByOther) setReadOnly(); }
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'locks' }, payload => {
+      if (payload.eventType === 'DELETE') locksMap.delete(payload.old.name);
+      else locksMap.set(payload.new.name, payload.new);
+      renderPresence();
+    })
+    .subscribe();
+}
+
 async function loadFile() {
-  const token = getToken();
-  if (!token) { showNotice('Enter a GitHub Personal Access Token first.', 'error'); return; }
-  setStatus('Loading story/main.twee...');
+  setStatus('Loading shared story…');
   try {
-    const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`, {
-      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
+    const [pr, lr] = await Promise.all([sb.from('passages').select('*'), sb.from('locks').select('*')]);
+    if (pr.error) throw pr.error;
+    passages = []; saved.clear(); locksMap.clear(); selectedIndex = null;
+    pr.data.forEach(row => {
+      const p = parseTwee(row.source)[0];
+      if (!p) return;
+      passages.push(p);
+      saved.set(p.name, { source: serializePassage(p), version: row.version });
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    fileSha = data.sha;
-    const decoded = decodeBase64Unicode(data.content.replace(/\n/g, ''));
-    passages = parseTwee(decoded);
-    initLinkedSet();
-    buildMarkers(); renderPassageList('');
-    setStatus('Loaded ' + passages.length + ' passages from story/main.twee.');
+    (lr.data || []).forEach(l => locksMap.set(l.name, l));
+    initLinkedSet(); buildMarkers(); renderPassageList('');
+    document.getElementById('editorPanel').innerHTML = '<div class="notice">Select a passage to edit.</div>';
+    renderPresence(); subscribeRealtime(); startHeartbeat();
+    setStatus('Loaded ' + passages.length + ' passages.');
     showNotice('Loaded ' + passages.length + ' passages.', 'success');
-    const geoPassages = passages.filter(p => p.tags.includes('geo') && isFinite(p.lat));
-    if (geoPassages.length > 0) {
-      const lats = geoPassages.map(p => p.lat);
-      const lngs = geoPassages.map(p => p.lng);
-      map.fitBounds([[Math.min(...lats)-0.002, Math.min(...lngs)-0.002],[Math.max(...lats)+0.002, Math.max(...lngs)+0.002]]);
+    const geo = passages.filter(p => p.tags.includes('geo') && isFinite(p.lat));
+    if (geo.length > 0) {
+      const lats = geo.map(p => p.lat), lngs = geo.map(p => p.lng);
+      map.fitBounds([[Math.min(...lats) - 0.002, Math.min(...lngs) - 0.002], [Math.max(...lats) + 0.002, Math.max(...lngs) + 0.002]]);
     }
-  } catch(e) { showNotice('Load failed: ' + e.message, 'error'); setStatus('Load failed.'); }
+  } catch (e) { showNotice('Load failed: ' + friendly(e), 'error'); setStatus('Load failed.'); }
 }
 
 async function saveFile() {
-  const token = getToken();
-  if (!token) { showNotice('Enter a GitHub Personal Access Token first.', 'error'); return; }
-  if (!fileSha) { showNotice('Load the file first before saving.', 'error'); return; }
-  const msg = document.getElementById('commitMsgInput').value.trim() || 'Update story/main.twee via authoring tool';
-  const content = serializeAll();
-  const encoded = btoa(unescape(encodeURIComponent(content)));
-  setStatus('Saving...');
-  try {
-    const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
-      method: 'PUT',
-      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: msg, content: encoded, sha: fileSha, branch: BRANCH })
-    });
-    if (!res.ok) { const err = await res.json(); throw new Error(err.message || 'HTTP ' + res.status); }
-    const data = await res.json();
-    fileSha = data.content.sha;
-    showNotice('Saved. Commit: ' + data.commit.sha.slice(0,7), 'success');
-    setStatus('Saved to story/main.twee.');
-  } catch(e) { showNotice('Save failed: ' + e.message, 'error'); setStatus('Save failed.'); }
+  if (!myUserId) { showNotice('Join the class first.', 'error'); return false; }
+  setStatus('Saving…');
+  const current = new Set(passages.map(p => p.name));
+  let ok = 0; const problems = [];
+  for (const p of passages) {
+    if (!isDirty(p)) continue;
+    const src = serializePassage(p);
+    const s = saved.get(p.name);
+    const { data, error } = await sb.rpc('save_passage', { p_name: p.name, p_source: src, p_expected: s ? s.version : 0 });
+    if (error) problems.push(p.name + ': ' + friendly(error));
+    else { saved.set(p.name, { source: src, version: data }); ok++; }
+  }
+  for (const [name, s] of [...saved]) {
+    if (current.has(name)) continue;
+    const { error } = await sb.rpc('delete_passage', { p_name: name, p_expected: s.version });
+    if (error) problems.push(name + ': ' + friendly(error)); else saved.delete(name);
+  }
+  if (problems.length) { showNotice('Saved ' + ok + '. Problems: ' + problems.join(' | '), 'error'); setStatus('Saved with problems.'); return false; }
+  showNotice(ok ? 'Saved ' + ok + ' passage(s).' : 'Nothing to save.', 'success');
+  setStatus('Saved.');
+  return true;
 }
+
+async function publishStory() {
+  if (!(await saveFile())) return;
+  const { error } = await sb.functions.invoke('publish');
+  if (error) { showNotice('Publish failed: ' + friendly(error), 'error'); return; }
+  showNotice('Publishing. The public reader updates in about 1–2 minutes.', 'success');
+}
+
+async function enterApp(name) {
+  myName = name;
+  document.getElementById('joinRow').style.display = 'none';
+  document.getElementById('actionRow').style.display = 'flex';
+  await loadFile();
+}
+
+async function joinClass() {
+  const code = document.getElementById('classCode').value.trim();
+  const name = document.getElementById('displayName').value.trim();
+  if (!code || !name) { showNotice('Enter the class code and your name.', 'error'); return; }
+  try {
+    let { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      const r = await sb.auth.signInAnonymously();
+      if (r.error) throw r.error;
+      session = r.data.session;
+    }
+    myUserId = session.user.id;
+    const { error } = await sb.rpc('join_class', { p_code: code, p_name: name });
+    if (error) throw error;
+    await enterApp(name);
+  } catch (e) { showNotice('Could not join: ' + friendly(e), 'error'); }
+}
+
+(async function resume() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    const { data } = await sb.from('members').select('display_name').eq('user_id', session.user.id).maybeSingle();
+    if (data) { myUserId = session.user.id; await enterApp(data.display_name); }
+  } catch (_) {}
+})();
 
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1198,8 +1315,10 @@ function escAttr(s) {
   return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
+document.getElementById('joinBtn').addEventListener('click', joinClass);
 document.getElementById('loadBtn').addEventListener('click', loadFile);
 document.getElementById('saveBtn').addEventListener('click', saveFile);
+document.getElementById('publishBtn').addEventListener('click', publishStory);
 document.getElementById('passageSearch').addEventListener('input', e => renderPassageList(e.target.value));
 document.getElementById('toggleAllPassages').addEventListener('click', () => {
   showAllPassages = !showAllPassages;
