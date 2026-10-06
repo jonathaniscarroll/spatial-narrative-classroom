@@ -67,6 +67,7 @@
     <li><a href="#make">Step 4: Make your node</a></li>
     <li><a href="#link">Step 5: Link it to the story</a></li>
     <li><a href="#share">Step 6: Save and publish</a></li>
+    <li><a href="#advanced">Going further: facing, second stage, directional variants</a></li>
     <li><a href="#fixes">If something goes wrong</a></li>
     <li><a href="#words">Words you will see</a></li>
   </ol>
@@ -124,9 +125,19 @@
   <tr><td><strong>Lede</strong></td><td>A short italic subtitle under the title.</td></tr>
   <tr><td><strong>Body Text</strong></td><td>Your writing. Write plain prose here. Do not type links in this box; links are added separately in step 5.</td></tr>
   <tr><td><strong>Image</strong></td><td>Choose a photo and tap <span class="tag">Upload</span>.</td></tr>
-  <tr><td><strong>Audio</strong></td><td>Upload a sound file, or tap <span class="tag">Record</span> to record one right there.</td></tr>
+  <tr><td><strong>Audio</strong></td><td>Upload a sound file, tap <span class="tag">Record</span> to record one right there, or pull the sound out of a video (see below).</td></tr>
 </table>
-<p>Leave the remaining advanced fields alone for now unless your instructor asks you to use them.</p>
+
+<h3>Get audio from a video</h3>
+<p>Filmed something on your phone and want only its sound? Under <strong>Audio</strong>, find <strong>Or get audio from a video</strong>.</p>
+<ol class="steps">
+  <li>Choose a video file (mp4, mov, m4v or webm). Short clips work best, and anything over 100 MB is refused.</li>
+  <li>Tap <span class="tag">Extract audio</span>.</li>
+  <li>Wait while it works. The first time, it downloads a converter of about 30 MB, so it can take a while on slow Wi-Fi. You will see progress messages as it goes.</li>
+  <li>When it finishes, the sound is uploaded as an MP3 and attached to your node, and a player appears so you can check it. Then tap <span class="tag">Apply Changes</span> and <span class="tag">Save</span>, and <span class="tag">Publish</span> as in step 6.</li>
+</ol>
+<div class="box"><strong>Only the sound is kept</strong>The video itself is not saved or shown to readers. If you want people to see a picture, use the <strong>Image</strong> field with a still photo. To swap the sound later, tap <span class="tag">Remove</span> next to the audio player and add a new one. Do not switch to another passage while it is working, or the audio will not attach.</div>
+<p>The fields for facing, a second stage and directional variants are optional extras. Skip them for your first node, or read <a href="#advanced">Going further</a> when you are ready.</p>
 
 <h2 id="link">Step 5: Link it to the story</h2>
 <p>Links do two things: they make your node findable, and they decide where the reader's compass points after your node opens. Near the bottom of the Editor there are <strong>two lists</strong> and a checkbox.</p>
@@ -167,6 +178,37 @@
 </ol>
 <p>After you publish, give it a minute or two, then reload <a href="../">the reader</a>. Your node should be there.</p>
 
+<h2 id="advanced">Going further: facing, second stage, directional variants</h2>
+<p>These optional extras let one place say more than one thing. Use one, all, or none. Test them outside, because heading and timing are hard to judge from a desk.</p>
+
+<h3>Facing threshold</h3>
+<p>After a reader has opened a node, their compass only shows the next nodes they are roughly <em>facing</em>. By default that means within 35 degrees of where they are pointing. Turn away and the marker drops off the list.</p>
+<p>Fill in the facing field on a node to change this for that node. A smaller number, like 15, means a reader has to aim straight at it, which suits a hidden or hard-to-find place. A larger number, like 90, makes it easy to spot. Leave it empty to use the default.</p>
+<div class="box"><strong>Not applied at the start</strong>A reader who has not opened anything yet sees every Start node on the compass, whichever way they face. Facing only matters after the first node opens.</div>
+
+<h3>Second stage: After and Then</h3>
+<p>A second stage lets a node change if a reader stays. The place reveals more after they have been there a while.</p>
+<ol class="steps">
+  <li>Make the second-stage text as its own passage. Tap <span class="tag">New Passage</span> in the toolbar, give it a name like <strong>Fountain_late</strong>, and <strong>leave Tags empty</strong>. It does not need a spot on the map.</li>
+  <li>Open your main node. In the <strong>After</strong> field, type how long to wait after the node opens. Like Dwell, it is in thousandths of a second, so 30000 means 30 seconds.</li>
+  <li>In the <strong>Then</strong> field, choose <strong>Fountain_late</strong>.</li>
+  <li>Write the second-stage text in the new passage. It can have its own lede, image and audio.</li>
+  <li>Tap <span class="tag">Apply Changes</span>, <span class="tag">Save</span> and <span class="tag">Publish</span>.</li>
+</ol>
+<p>In the reader, the first text appears when the node opens. After the time you set, the page switches to the second-stage text. You need both After and Then for this to work.</p>
+
+<h3>Directional variants</h3>
+<p>A directional variant shows different text depending on which way the reader is facing while standing in your node. Facing the harbour can show one passage, facing the street another.</p>
+<ol class="steps">
+  <li>Make each variant as its own passage: tap <span class="tag">New Passage</span>, name it something like <strong>Fountain_north</strong>, and <strong>leave Tags empty</strong>.</li>
+  <li>Open your main node and add a direction rule in the directional section.</li>
+  <li>Type a start angle and an end angle, then choose the variant passage. Angles run clockwise from north: 0 is north, 90 is east, 180 is south, 270 is west.</li>
+  <li>Add more rules for other directions. Use the &#10005; on a rule to remove it.</li>
+  <li>Write the text in each variant, then <span class="tag">Apply Changes</span>, <span class="tag">Save</span> and <span class="tag">Publish</span>.</li>
+</ol>
+<div class="box"><strong>Tips for variants</strong>Your main node's own text is what readers see when no rule matches, so write it to stand on its own. If a range crosses north, split it into two rules (for example 315 to 360, and 0 to 45). Keep the ranges from overlapping. Variants and second-stage passages do not need links of their own, because the main node carries the links.</div>
+<p>You can combine all of these on one node. A single place can have a tight facing threshold, a set of directional variants, and a second stage.</p>
+
 <h2 id="fixes">If something goes wrong</h2>
 <table>
   <tr><th>Problem</th><th>Try this</th></tr>
@@ -180,6 +222,12 @@
   <tr><td>The compass does nothing on my phone</td><td>Tap Enable compass and allow motion access. On iPhone it must be granted each time you open the page.</td></tr>
   <tr><td>The story point will not open when I arrive</td><td>Stay still for the dwell time, and check that location is on and accurate. GPS can drift by 10 m or more, so authors should not set the radius too small.</td></tr>
   <tr><td>I made a mistake in my node</td><td>Reopen it, fix it, then Apply Changes, Save and Publish again.</td></tr>
+  <tr><td>&ldquo;Could not load the audio converter&rdquo;</td><td>The converter downloads the first time you use it. Check your connection and try again. If it keeps failing, upload an audio file or use Record instead.</td></tr>
+  <tr><td>&ldquo;We could not find any sound in that video&rdquo;</td><td>The clip has no audio track, or it was recorded muted. Try a different clip, or upload an audio file instead.</td></tr>
+  <tr><td>&ldquo;That video is too large&rdquo;</td><td>Videos over 100 MB are refused, and some phones run out of memory on long clips. Trim it to a shorter clip and try again.</td></tr>
+  <tr><td>My second stage never appears</td><td>Both <strong>After</strong> and <strong>Then</strong> must be filled in, and you have to stay in the node for the whole After time. Remember it is in thousandths of a second.</td></tr>
+  <tr><td>My directional variant never shows</td><td>Check the angle range and that you chose the variant passage in the rule. Make sure the reader is actually facing that way, and that you tapped Apply Changes before Save.</td></tr>
+  <tr><td>A variant or second-stage passage is not on the map</td><td>That is normal. They have no spot of their own, so find them in the <strong>Passages</strong> list.</td></tr>
 </table>
 <p>Still stuck? Email your instructor: <a href="mailto:jonathancarroll@nscad.ca">jonathancarroll@nscad.ca</a></p>
 
@@ -191,6 +239,9 @@
   <tr><td><strong>Linked Passages</strong></td><td>Nodes this node points to. The compass shows them after this node opens.</td></tr>
   <tr><td><strong>Linked From</strong></td><td>Nodes that point to this node. Also called incoming links.</td></tr>
   <tr><td><strong>Start</strong></td><td>The opening of the story. Nodes linked from Start are where a new reader can begin.</td></tr>
+  <tr><td><strong>Facing threshold</strong></td><td>How precisely a reader must point their phone at a node, in degrees, before it shows on the compass. Default 35.</td></tr>
+  <tr><td><strong>Second stage (After / Then)</strong></td><td>A second passage that replaces the first after a set time spent in the node.</td></tr>
+  <tr><td><strong>Directional variant</strong></td><td>An extra passage shown instead of the main one when the reader faces a chosen range of compass angles.</td></tr>
   <tr><td><strong>Exquisite corpse</strong></td><td>A collaborative game in which each person adds to a work after seeing only a little of what came before.</td></tr>
 </table>
 
