@@ -25,7 +25,6 @@ Geo Passage Navigator Core
   unlocked: [],
   error: "",
   mode: "Idle",
-  gray: false,
   dwellMs: 12000,
   headingThreshold: 35,
   stageSince: null,
@@ -35,28 +34,21 @@ Geo Passage Navigator Core
 
 :: StoryInterface
 <div class="window">
-  <div class="titlebar">
-    <div>Geo Passage Navigator Core - Netscape Style</div>
-    <div class="buttons">
-      <div class="box"></div><div class="box"></div><div class="box"></div>
-    </div>
+  <div class="topbar">
+    <div class="site-name">Spatial Narrative</div>
+    <nav class="navlinks">
+      <a href="author/" id="authorLink">Author tool</a>
+      <a href="help/" id="helpLink">Help</a>
+    </nav>
   </div>
-
-  <div class="menubar">File &nbsp; Edit &nbsp; View &nbsp; Go &nbsp; Bookmarks &nbsp; Options &nbsp; Directory &nbsp; Help</div>
 
   <div class="toolbar">
     <button class="button95" id="gpsBtn">Start Geolocation</button>
     <button class="button95" id="orientBtn">Enable Compass</button>
-    <button class="button95" id="simBtn">Simulate Walk</button>
-    <button class="button95" id="themeBtn">Gray Mode</button>
-    <input type="password" id="ghTokenInput" class="token-input" placeholder="GitHub token (for comments)" autocomplete="current-password">
+    <span class="account-bar" id="accountBar"></span>
   </div>
 
   <div class="layout">
-    <div class="marquee-box">
-      <marquee behavior="scroll" direction="left">LIVE STORY PASSAGE VIEWER :: ACTIVE PASSAGE OPENS BY PROXIMITY :: COMPASS POINTS TO LINKED NODES :: BODY TEXT CAN SHIFT BY DWELL AND DIRECTION :: BEST VIEWED ON A SECURE MOBILE BROWSER</marquee>
-    </div>
-
     <table class="core">
       <tr>
         <td width="62%">
@@ -105,7 +97,6 @@ Geo Passage Navigator Core
 
   <div class="statusbar">
     <div id="statusText">Geolocation and orientation both require secure context permissions.</div>
-    <div>Done</div>
   </div>
 </div>
 
@@ -137,34 +128,43 @@ a { color: #0000cc; }
   box-shadow: 3px 3px 0 #7f7f7f;
 }
 
-.titlebar {
-  background: linear-gradient(90deg, #000080, #1084d0);
-  color: #fff;
-  padding: 6px 8px;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 14px;
-  font-weight: bold;
+.topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  background: #000080;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-.titlebar .buttons {
+.topbar .site-name {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.navlinks {
   display: flex;
-  gap: 4px;
+  gap: 8px;
 }
 
-.titlebar .box {
-  width: 14px;
-  height: 14px;
-  background: #d4d0c8;
-  border-top: 2px solid #fff;
-  border-left: 2px solid #fff;
-  border-right: 2px solid #404040;
-  border-bottom: 2px solid #404040;
+.navlinks a {
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  text-decoration: none;
 }
 
-.menubar, .toolbar, .statusbar {
+.navlinks a:hover,
+.navlinks a:focus-visible {
+  background: #fff;
+  color: #000080;
+}
+
+.toolbar, .statusbar {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 13px;
   background: #d4d0c8;
@@ -184,16 +184,34 @@ a { color: #0000cc; }
   margin: 2px 3px 2px 0;
 }
 
-.token-input {
+.account-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.account-bar input {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   border: 2px inset #808080;
   padding: 3px 6px;
   background: #fff;
   height: 26px;
-  flex: 1;
+  width: 130px;
   min-width: 0;
-  max-width: 200px;
+}
+
+.account-bar .who {
+  font-weight: bold;
+}
+
+.account-msg {
+  flex-basis: 100%;
+  font-size: 12px;
+  color: #800000;
+  text-align: right;
 }
 
 .layout {
@@ -402,15 +420,6 @@ table.core td {
   border-bottom: 2px solid #ffffff;
 }
 
-.marquee-box {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12px;
-  background: #ffffe1;
-  border: 1px solid #808080;
-  padding: 4px;
-  margin-bottom: 10px;
-}
-
 .statusbar {
   display: flex;
   justify-content: space-between;
@@ -525,10 +534,10 @@ table.core td {
     height: 200px;
   }
 
-  .token-input {
-    max-width: 100%;
-    font-size: 16px;
-  }
+  .account-bar { margin-left: 0; width: 100%; }
+  .account-bar input { font-size: 16px; width: 100%; flex: 1 1 140px; }
+  .account-msg { text-align: left; }
+  .navlinks a { padding: 10px 12px; }
 }
 
 :: Story JavaScript [script]
@@ -927,69 +936,131 @@ setup.geo.getShownPassage = function () {
   return setup.geo.getParsedPassageByName(v.displayed);
 };
 
-// ── Comments via GitHub Issues ─────────────────────────────────────────────
-var _geoCommentsOwner   = 'jonathaniscarroll';
-var _geoCommentsRepo    = 'spatial-narrative';
-var _geoCommentsBase    = 'https://api.github.com/repos/' + _geoCommentsOwner + '/' + _geoCommentsRepo;
-var _geoCommentsCache   = Object.create(null);
-var _geoCurrentPassage  = null;
+// ── Classroom session (Supabase) ───────────────────────────────────────────
+// Same project, same anonymous session and same class code as the authoring tool.
+// supabase-js keeps the session in localStorage for this origin, so signing in
+// here also signs you in at /author/ and vice versa.
+var _geoCurrentPassage = null;
 
+setup.geo.auth = { sb: null, name: null, ready: null, formOpen: false, msg: '' };
+
+setup.geo.auth._loadScript = function (src) {
+  return new Promise(function (resolve, reject) {
+    var el = document.createElement('script');
+    el.src = src;
+    el.onload = resolve;
+    el.onerror = function () { reject(new Error('Could not load ' + src)); };
+    document.head.appendChild(el);
+  });
+};
+
+setup.geo.auth.init = function () {
+  var a = setup.geo.auth;
+  if (a.ready) { return a.ready; }
+  a.ready = (async function () {
+    if (!window.CLASSROOM_CONFIG) { await a._loadScript('author/config.js'); }
+    if (!window.supabase) {
+      await a._loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
+    }
+    var cfg = window.CLASSROOM_CONFIG;
+    a.sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+    var sess = (await a.sb.auth.getSession()).data.session;
+    if (sess) {
+      var r = await a.sb.from('members').select('display_name')
+        .eq('user_id', sess.user.id).maybeSingle();
+      if (r.data) { a.name = r.data.display_name; }
+    }
+    a.renderAccount();
+    return a.sb;
+  })();
+  a.ready.catch(function (e) {
+    a.msg = 'Class sign-in unavailable: ' + e.message;
+    a.renderAccount();
+  });
+  return a.ready;
+};
+
+setup.geo.auth.join = async function (code, name) {
+  var a = setup.geo.auth;
+  code = (code || '').trim();
+  name = (name || '').trim();
+  if (!code || !name) { a.msg = 'Enter the class code and your name.'; a.renderAccount(); return; }
+  try {
+    var sb = await a.init();
+    var sess = (await sb.auth.getSession()).data.session;
+    if (!sess) {
+      var r = await sb.auth.signInAnonymously();
+      if (r.error) { throw r.error; }
+    }
+    var j = await sb.rpc('join_class', { p_code: code, p_name: name });
+    if (j.error) { throw j.error; }
+    a.name = name;
+    a.formOpen = false;
+    a.msg = '';
+    a.renderAccount();
+    if (_geoCurrentPassage) { setup.geo.comments.load(_geoCurrentPassage); }
+  } catch (e) {
+    var m = (e && e.message) || String(e);
+    a.msg = /bad_code/.test(m) ? 'That class code is not right.' : 'Could not sign in: ' + m;
+    a.renderAccount();
+  }
+};
+
+setup.geo.auth.leave = async function () {
+  var a = setup.geo.auth;
+  try { if (a.sb) { await a.sb.auth.signOut(); } } catch (_) {}
+  a.name = null;
+  a.msg = '';
+  a.renderAccount();
+  if (_geoCurrentPassage) { setup.geo.comments.load(_geoCurrentPassage); }
+};
+
+setup.geo.auth.renderAccount = function () {
+  var a  = setup.geo.auth;
+  var el = document.getElementById('accountBar');
+  if (!el) { return; }
+  var sig = [a.name || '', a.formOpen ? 1 : 0, a.msg].join('|');
+  if (el.dataset.sig === sig && el.firstChild) { return; }
+  el.dataset.sig = sig;
+  el.innerHTML = '';
+
+  function add(tag, props, text) {
+    var n = document.createElement(tag);
+    Object.keys(props || {}).forEach(function (k) { n[k] = props[k]; });
+    if (text) { n.textContent = text; }
+    el.appendChild(n);
+    return n;
+  }
+
+  if (a.name) {
+    add('span', { className: 'who' }, 'Signed in: ' + a.name);
+    add('button', { className: 'button95', type: 'button' }, 'Sign out')
+      .addEventListener('click', a.leave);
+  } else if (a.formOpen) {
+    var code = add('input', { type: 'password', id: 'acctCode', placeholder: 'Class code',
+                              autocomplete: 'off', autocapitalize: 'off', spellcheck: false });
+    var nm   = add('input', { type: 'text', id: 'acctName', placeholder: 'Your name',
+                              maxLength: 40, autocomplete: 'off', spellcheck: false });
+    var go   = add('button', { className: 'button95', type: 'button' }, 'Join');
+    var no   = add('button', { className: 'button95', type: 'button' }, 'Cancel');
+    go.addEventListener('click', function () { a.join(code.value, nm.value); });
+    nm.addEventListener('keydown', function (e) { if (e.key === 'Enter') { go.click(); } });
+    no.addEventListener('click', function () { a.formOpen = false; a.msg = ''; a.renderAccount(); });
+  } else {
+    add('button', { className: 'button95', type: 'button' }, 'Class sign-in')
+      .addEventListener('click', function () { a.formOpen = true; a.msg = ''; a.renderAccount(); });
+  }
+  if (a.msg) { add('div', { className: 'account-msg', role: 'status' }, a.msg); }
+};
+
+// ── Field notes (Supabase table `comments`) ────────────────────────────────
 setup.geo.comments = {};
 
-setup.geo.comments._getToken = function () {
-  var el = document.getElementById('ghTokenInput');
-  return el ? el.value.trim() : '';
-};
-
-setup.geo.comments._issueTitle = function (passageName) {
-  return '[passage] ' + passageName;
-};
-
-setup.geo.comments._findIssue = async function (passageName) {
-  var title = setup.geo.comments._issueTitle(passageName);
-  var res = await fetch(
-    _geoCommentsBase + '/issues?state=open&labels=geo-comment&per_page=100',
-    { headers: { 'Accept': 'application/vnd.github.v3+json' } }
-  );
-  if (!res.ok) { return null; }
-  var issues = await res.json();
-  var found  = issues.find(function (i) { return i.title === title; });
-  return found ? found.number : null;
-};
-
-setup.geo.comments._createIssue = async function (passageName) {
-  var token = setup.geo.comments._getToken();
-  if (!token) { return null; }
-  var res = await fetch(_geoCommentsBase + '/issues', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'token ' + token,
-      'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      title: setup.geo.comments._issueTitle(passageName),
-      body:  'Field notes left by readers at the geo passage **' + passageName + '**. ' +
-             'Each comment was posted from within the passage radius.',
-      labels: ['geo-comment']
-    })
-  });
-  if (!res.ok) { return null; }
-  var data = await res.json();
-  return data.number;
-};
-
-setup.geo.comments._ensureIssue = async function (passageName) {
-  if (_geoCommentsCache[passageName] && _geoCommentsCache[passageName].issueNumber) {
-    return _geoCommentsCache[passageName].issueNumber;
-  }
-  var num = await setup.geo.comments._findIssue(passageName);
-  if (!num) { num = await setup.geo.comments._createIssue(passageName); }
-  if (num) {
-    _geoCommentsCache[passageName] = _geoCommentsCache[passageName] || {};
-    _geoCommentsCache[passageName].issueNumber = num;
-  }
-  return num;
+setup.geo.comments._setForm = function (enabled) {
+  var ta  = document.getElementById('commentInput');
+  var btn = document.getElementById('commentSubmit');
+  if (ta)  { ta.disabled  = !enabled; }
+  if (btn) { btn.disabled = !enabled; }
 };
 
 setup.geo.comments.load = async function (passageName) {
@@ -999,41 +1070,26 @@ setup.geo.comments.load = async function (passageName) {
   var status = document.getElementById('commentStatus');
   if (!panel || !list) { return; }
   panel.style.display = '';
-  list.innerHTML = '<div class="comment-empty">Loading field notes\u2026</div>';
   if (status) { status.textContent = ''; }
+  list.innerHTML = '<div class="comment-empty">Loading field notes\u2026</div>';
 
   try {
-    var title = setup.geo.comments._issueTitle(passageName);
-    var res = await fetch(
-      _geoCommentsBase + '/issues?state=open&labels=geo-comment&per_page=100',
-      { headers: { 'Accept': 'application/vnd.github.v3+json' } }
-    );
-    var issueNumber = null;
-    if (res.ok) {
-      var issues = await res.json();
-      var found  = issues.find(function (i) { return i.title === title; });
-      if (found) {
-        issueNumber = found.number;
-        _geoCommentsCache[passageName] = _geoCommentsCache[passageName] || {};
-        _geoCommentsCache[passageName].issueNumber = found.number;
-      }
-    }
-
-    if (!issueNumber) {
-      list.innerHTML = '<div class="comment-empty">No field notes yet. Be the first.</div>';
+    var sb = await setup.geo.auth.init();
+    if (!setup.geo.auth.name) {
+      list.innerHTML = '<div class="comment-empty">Use \u201cClass sign-in\u201d above to read and leave field notes.</div>';
+      setup.geo.comments._setForm(false);
       return;
     }
-
-    var cRes = await fetch(
-      _geoCommentsBase + '/issues/' + issueNumber + '/comments?per_page=100',
-      { headers: { 'Accept': 'application/vnd.github.v3+json' } }
-    );
-    if (!cRes.ok) { throw new Error('HTTP ' + cRes.status); }
-    var comments = await cRes.json();
-    _geoCommentsCache[passageName].comments = comments;
-    setup.geo.comments.render(passageName, comments);
+    setup.geo.comments._setForm(true);
+    var res = await sb.from('comments')
+      .select('display_name, body, created_at')
+      .eq('passage', passageName)
+      .order('created_at', { ascending: true })
+      .limit(100);
+    if (res.error) { throw res.error; }
+    setup.geo.comments.render(passageName, res.data);
   } catch (e) {
-    list.innerHTML = '<div class="comment-empty">Could not load notes: ' + e.message + '</div>';
+    list.innerHTML = '<div class="comment-empty">Could not load notes: ' + (e.message || e) + '</div>';
   }
 };
 
@@ -1053,7 +1109,7 @@ setup.geo.comments.render = function (passageName, comments) {
     var dateStr = date.toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' });
     var meta = document.createElement('div');
     meta.className = 'comment-meta';
-    meta.textContent = (c.user ? c.user.login : 'anonymous') + ' \u2014 ' + dateStr;
+    meta.textContent = (c.display_name || 'anonymous') + ' \u2014 ' + dateStr;
     var body = document.createElement('div');
     body.className = 'comment-body';
     body.textContent = c.body;
@@ -1068,10 +1124,9 @@ setup.geo.comments.post = async function (passageName, text) {
   var status = document.getElementById('commentStatus');
   var input  = document.getElementById('commentInput');
   var btn    = document.getElementById('commentSubmit');
-  var token  = setup.geo.comments._getToken();
 
-  if (!token) {
-    if (status) { status.textContent = 'Paste a GitHub token into the token field to post.'; }
+  if (!setup.geo.auth.name) {
+    if (status) { status.textContent = 'Sign in with the class code to post.'; }
     return;
   }
   if (!text || !text.trim()) {
@@ -1083,32 +1138,25 @@ setup.geo.comments.post = async function (passageName, text) {
   if (status) { status.textContent = 'Posting\u2026'; }
 
   try {
-    var issueNumber = await setup.geo.comments._ensureIssue(passageName);
-    if (!issueNumber) { throw new Error('Could not find or create issue.'); }
-
-    var v      = State.variables.geo;
-    var coords = v.current
-      ? '\n\n---\n*Posted at ' + v.current.lat.toFixed(5) + ', ' + v.current.lng.toFixed(5) + '*'
-      : '';
-
-    var res = await fetch(_geoCommentsBase + '/issues/' + issueNumber + '/comments', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'token ' + token,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ body: text.trim() + coords })
+    var sb = await setup.geo.auth.init();
+    var v  = State.variables.geo;
+    var res = await sb.rpc('post_comment', {
+      p_passage: passageName,
+      p_body:    text.trim(),
+      p_lat:     v.current ? v.current.lat : null,
+      p_lng:     v.current ? v.current.lng : null
     });
-    if (!res.ok) {
-      var err = await res.json();
-      throw new Error(err.message || 'HTTP ' + res.status);
-    }
+    if (res.error) { throw res.error; }
     if (status) { status.textContent = 'Note posted.'; }
     if (input)  { input.value = ''; }
-    setTimeout(function () { setup.geo.comments.load(passageName); }, 400);
+    setup.geo.comments.load(passageName);
   } catch (e) {
-    if (status) { status.textContent = 'Failed: ' + e.message; }
+    var m = (e && e.message) || String(e);
+    if (status) {
+      status.textContent = /slow_down/.test(m) ? 'Wait a few seconds between notes.'
+                         : /not_member/.test(m) ? 'Sign in with the class code to post.'
+                         : 'Failed: ' + m;
+    }
   } finally {
     if (btn) { btn.disabled = false; }
   }
@@ -1416,39 +1464,8 @@ setup.geo.handleOrientation = function (event) {
   setup.geo.refresh();
 };
 
-setup.geo.simulate = function () {
-  var v = State.variables.geo;
-  setup.geo.setMode('Simulated walk');
-  var path = [
-    { lat: 44.6492, lng: -63.5760, heading: 122 },
-    { lat: 44.6488, lng: -63.5752, heading: 115 },
-    { lat: 44.6478, lng: -63.5735, heading: 108 },
-    { lat: 44.6476, lng: -63.5728, heading: 180 },
-    { lat: 44.6467, lng: -63.5708, heading: 128 },
-    { lat: 44.6464, lng: -63.5699, heading: 96 }
-  ];
-  var i = 0;
-  v.current = { lat: path[0].lat, lng: path[0].lng };
-  v.heading = path[0].heading;
-  setup.geo.refresh();
-  if (setup.geo.simTimer) { clearInterval(setup.geo.simTimer); }
-  setup.geo.simTimer = setInterval(function () {
-    i += 1;
-    if (i >= path.length) { clearInterval(setup.geo.simTimer); return; }
-    v.current = { lat: path[i].lat, lng: path[i].lng };
-    v.heading = path[i].heading;
-    setup.geo.refresh();
-  }, 1600);
-};
-
-setup.geo.toggleGrayMode = function () {
-  State.variables.geo.gray = !State.variables.geo.gray;
-  document.body.style.filter = State.variables.geo.gray ? 'grayscale(0.15) contrast(1.02)' : '';
-};
-
 setup.geo.bindUI = function () {
-  var ids = { gpsBtn: setup.geo.startGeolocation, orientBtn: setup.geo.enableOrientation,
-              simBtn: setup.geo.simulate, themeBtn: setup.geo.toggleGrayMode };
+  var ids = { gpsBtn: setup.geo.startGeolocation, orientBtn: setup.geo.enableOrientation };
   Object.keys(ids).forEach(function (id) {
     var btn = document.getElementById(id);
     if (btn && !btn.dataset.bound) {
@@ -1456,6 +1473,8 @@ setup.geo.bindUI = function () {
       btn.dataset.bound = '1';
     }
   });
+  setup.geo.auth.init();
+  setup.geo.auth.renderAccount();
 };
 
 setup.geo.startHeartbeat = function () {
@@ -1469,4 +1488,3 @@ $(document).on(':passagerender', function () {
   setup.geo.startHeartbeat();
   setup.geo.refresh();
 });
-
