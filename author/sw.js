@@ -1,6 +1,6 @@
 // Minimal service worker for standalone PWA feel
 // Caches the shell on install; network-first for API calls
-const CACHE = 'sn-author-v1';
+const CACHE = 'sn-author-v2';
 const SHELL = [
   './',
   './index.html',

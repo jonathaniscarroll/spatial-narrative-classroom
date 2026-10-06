@@ -141,3 +141,21 @@
 
   if (typeof myUserId !== 'undefined' && myUserId && passages.length) loadFile();
 })();
+
+/* Header links: Reader and Help (added to the author title bar at load). */
+(function () {
+  'use strict';
+  const bar = document.querySelector('.titlebar');
+  if (!bar || bar.querySelector('[data-nav]')) return;
+  const wrap = document.createElement('span');
+  wrap.setAttribute('data-nav', '1');
+  wrap.style.cssText = 'margin-left:auto;display:flex;gap:14px';
+  [['Reader', '../'], ['Help', '../help/']].forEach(([label, href]) => {
+    const a = document.createElement('a');
+    a.textContent = label;
+    a.href = href;
+    a.style.cssText = 'color:#fff;font-weight:bold;padding:4px 2px';
+    wrap.appendChild(a);
+  });
+  bar.appendChild(wrap);
+})();
