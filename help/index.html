@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spatial Narrative: Student Guide</title>
+<style>
+  :root { --navy:#000080; --panel:#d4d0c8; --ink:#1a1a1a; --muted:#4a4a4a; --paper:#fbfaf6; }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:#c0c0c0; color:var(--ink); font:18px/1.6 Georgia,"Times New Roman",serif; }
+  .titlebar { background:linear-gradient(90deg,#000080,#1084d0); color:#fff; font:bold 14px Arial,sans-serif; padding:8px 12px; }
+  .wrap { max-width:720px; margin:0 auto; padding:16px 16px 64px; }
+  .page { background:var(--paper); border:2px solid #000; box-shadow:3px 3px 0 #7f7f7f; padding:24px 20px 32px; }
+  h1 { font-size:30px; line-height:1.2; margin:0 0 8px; color:var(--navy); }
+  h2 { font:bold 22px/1.25 Arial,sans-serif; margin:40px 0 12px; padding:6px 10px; background:var(--navy); color:#fff; }
+  h3 { font:bold 18px Arial,sans-serif; margin:24px 0 6px; }
+  p, li { max-width:64ch; }
+  .lead { font-size:20px; }
+  .btnrow { display:flex; flex-wrap:wrap; gap:10px; margin:20px 0; }
+  .btn { display:inline-block; font:bold 16px Arial,sans-serif; color:#000; text-decoration:none; background:var(--panel);
+         border-top:2px solid #fff; border-left:2px solid #fff; border-right:2px solid #404040; border-bottom:2px solid #404040;
+         padding:12px 18px; min-height:44px; }
+  .btn:active { border-top-color:#404040; border-left-color:#404040; border-right-color:#fff; border-bottom-color:#fff; }
+  nav.toc { background:var(--panel); border:2px inset #c0c0c0; padding:12px 16px; margin:24px 0; font-family:Arial,sans-serif; font-size:16px; }
+  nav.toc ol { margin:6px 0 0; padding-left:22px; }
+  nav.toc a { color:#0000cc; }
+  .box { background:#ffffe1; border:1px solid #808080; padding:12px 14px; margin:18px 0; font-family:Arial,sans-serif; font-size:16px; }
+  .box strong:first-child { display:block; margin-bottom:2px; }
+  ol.steps { list-style:none; counter-reset:s; padding:0; }
+  ol.steps > li { counter-increment:s; position:relative; padding:0 0 18px 52px; }
+  ol.steps > li::before { content:counter(s); position:absolute; left:0; top:0; width:36px; height:36px; line-height:36px; text-align:center;
+         background:var(--navy); color:#fff; font:bold 18px Arial,sans-serif; }
+  .tag { font:bold 14px Arial,sans-serif; background:#fff; border:1px solid #808080; padding:1px 6px; white-space:nowrap; }
+  table { border-collapse:collapse; width:100%; font:16px/1.4 Arial,sans-serif; background:#fff; }
+  td, th { border:1px solid #808080; padding:8px 10px; text-align:left; vertical-align:top; }
+  th { background:var(--panel); }
+  .choice { display:grid; gap:12px; margin:16px 0; }
+  @media (min-width:640px){ .choice { grid-template-columns:1fr 1fr; } }
+  .choice > div { background:#fff; border:2px solid #000; padding:12px 14px; font-family:Arial,sans-serif; font-size:16px; }
+  .choice h3 { margin-top:0; color:var(--navy); }
+  :focus-visible { outline:3px solid #ff9900; outline-offset:2px; }
+  footer { font:14px Arial,sans-serif; color:var(--muted); margin-top:32px; }
+  @media (max-width:480px){ body{font-size:17px;} h1{font-size:26px;} }
+</style>
+</head>
+<body>
+<div class="titlebar">Spatial Narrative &nbsp;/&nbsp; Student Guide</div>
+<div class="wrap"><main class="page">
+
+<h1>Write a story that only exists in one place</h1>
+<p class="lead">Spatial Narrative lets you write text, images and sound that appear only when someone physically walks up to a spot on the map. The whole class builds one story together, a bit at a time, in any order, on your own schedule.</p>
+
+<div class="btnrow">
+  <a class="btn" href="../author/">Open the authoring tool</a>
+  <a class="btn" href="../">Open the story (reader)</a>
+</div>
+
+<nav class="toc" aria-label="Contents">
+  <strong>On this page</strong>
+  <ol>
+    <li><a href="#what">What this is</a></li>
+    <li><a href="#assignment">The assignment</a></li>
+    <li><a href="#read">Step 1: Read the story outside</a></li>
+    <li><a href="#log-in">Step 2: Log in to the authoring tool</a></li>
+    <li><a href="#choose">Step 3: Choose where your node goes</a></li>
+    <li><a href="#make">Step 4: Make your node</a></li>
+    <li><a href="#link">Step 5: Link it to the story</a></li>
+    <li><a href="#share">Step 6: Save and publish</a></li>
+    <li><a href="#fixes">If something goes wrong</a></li>
+    <li><a href="#words">Words you will see</a></li>
+  </ol>
+</nav>
+
+<h2 id="what">What this is</h2>
+<p>Each <strong>story point</strong> (also called a <strong>node</strong> or <strong>passage</strong>) is a spot on a map with something to read, see or hear. A reader walks around with their phone. When they get close to a point and stay a moment, it opens.</p>
+<p>A compass on the screen then points toward the next story points that the author chose. Following the compass leads the reader from point to point.</p>
+<p>It is built on <a href="https://twinery.org">Twine</a>, an open-source tool for non-linear stories. It was made so that stories could be tied to the land and only experienced in the place they were written for.</p>
+
+<h2 id="assignment">The assignment</h2>
+<p>This is an ongoing, class-wide <strong>exquisite corpse</strong>: a story built piece by piece, where each writer responds to what came before.</p>
+<p>You do not need to wait for a group or a turn. Whenever you are ready, <strong>write one node</strong>. It can be fiction, poetry, prose, a sound, an image, or any mix. Write it <strong>at the place where you put it</strong> if you can, and use your surroundings as inspiration.</p>
+<p>Pick one of two ways to start:</p>
+<div class="choice">
+  <div><h3>A. Continue someone's node</h3>Read a classmate's node, take it as inspiration, then write a new node at a new place that follows from it. Afterwards you link <em>their</em> node to <em>yours</em>.</div>
+  <div><h3>B. Start a new thread</h3>Write your own node with no parent. Others can then link their nodes to yours. Tell your instructor so it can be connected to the start of the story.</div>
+</div>
+<div class="box"><strong>Why linking matters</strong>A node nobody links to cannot be found by a reader. Readers only ever see nodes that the node they are standing in points to. Links are how the story grows.</div>
+
+<h2 id="read">Step 1: Read the story outside</h2>
+<p>Do this first so you know what already exists. Use your phone, outdoors, in a browser.</p>
+<ol class="steps">
+  <li>Open <a href="../">the reader</a>.</li>
+  <li>Tap <span class="tag">Start geolocation</span> and allow location access.</li>
+  <li>Tap <span class="tag">Enable compass</span> and allow motion/orientation access.</li>
+  <li>Follow the compass toward a story point. When you arrive, <strong>wait a few seconds</strong>. It loads once you have stayed inside its radius long enough.</li>
+</ol>
+<p>Not outside right now? You can still read nodes in the authoring tool (see step 3).</p>
+
+<h2 id="log-in">Step 2: Log in to the authoring tool</h2>
+<ol class="steps">
+  <li>Open <a href="../author/">the authoring tool</a>. It works on a phone or a laptop.</li>
+  <li>In <strong>Class code</strong>, type the class code from your instructor.</li>
+  <li>In <strong>Your name</strong>, type any name you want others to see.</li>
+  <li>Tap <span class="tag">Join</span>.</li>
+</ol>
+<div class="box"><strong>Where is the class code?</strong>Your instructor gave it to you in class, and it is on your handout. It is not printed on this page on purpose, so that only our class can edit the story.</div>
+<p>After joining you will see <span class="tag">Reload</span>, <span class="tag">Save</span> and <span class="tag">Publish</span> at the top, and a map with blue dots. Each blue dot is an existing story point.</p>
+
+<h2 id="choose">Step 3: Choose where your node goes</h2>
+<h3>Look at what exists</h3>
+<p>On a phone, use the buttons at the bottom to switch between <strong>Map</strong>, <strong>Passages</strong>, <strong>Editor</strong> and <strong>Raw</strong>. On a laptop the map is on the left and the panels are on the right.</p>
+<p>Tap a blue dot, or pick a name in <strong>Passages</strong>, to open it in the <strong>Editor</strong> tab and read what the author wrote.</p>
+<h3>Pick your spot</h3>
+<p>Tap an empty place on the map. A small box asks for a name, so type one and tap <span class="tag">Create</span>.</p>
+<div class="box"><strong>Map will not let you click?</strong>Sometimes you have to tap an existing blue dot first, or tap the <strong>Passages</strong> tab, before the map accepts a new tap. Try that and tap the map again.</div>
+
+<h2 id="make">Step 4: Make your node</h2>
+<p>Your new node opens in the <strong>Editor</strong> tab. Scroll down through the fields.</p>
+<table>
+  <tr><th>Field</th><th>What it does</th></tr>
+  <tr><td><strong>Radius (metres)</strong></td><td>How close a reader must be to trigger your node. New nodes start at 20 m. Use a larger number for open spaces and a smaller one for a precise spot, like a bench or doorway.</td></tr>
+  <tr><td><strong>Dwell (ms)</strong></td><td>How long a reader must stay inside the radius before it opens. The number is in thousandths of a second, so 12000 means 12 seconds.</td></tr>
+  <tr><td><strong>Lede</strong></td><td>A short italic subtitle under the title.</td></tr>
+  <tr><td><strong>Body Text</strong></td><td>Your writing. Write plain prose here. Do not type links in this box; links are added separately in step 5.</td></tr>
+  <tr><td><strong>Image</strong></td><td>Choose a photo and tap <span class="tag">Upload</span>.</td></tr>
+  <tr><td><strong>Audio</strong></td><td>Upload a sound file, or tap <span class="tag">Record</span> to record one right there.</td></tr>
+</table>
+<p>Leave the remaining advanced fields alone for now unless your instructor asks you to use them.</p>
+
+<h2 id="link">Step 5: Link it to the story</h2>
+<p>Links do two things: they make your node findable, and they decide where the reader's compass points after your node opens.</p>
+<h3>If you continued someone's node (path A)</h3>
+<ol class="steps">
+  <li>Finish your own node first, then tap <span class="tag">Apply Changes</span>, <span class="tag">Save</span> and <span class="tag">Publish</span> (step 6).</li>
+  <li>Open <strong>their</strong> node from the Passages tab.</li>
+  <li>In <strong>Linked Passages</strong>, add <strong>your node's name</strong>.</li>
+  <li>Tap <span class="tag">Apply Changes</span>, then <span class="tag">Save</span>.</li>
+</ol>
+<h3>If you want your node to lead somewhere</h3>
+<p>Open your own node and, in <strong>Linked Passages</strong>, choose one or more nodes the reader should be pointed toward next. Link to several nodes and you create a branching, choose-your-own-adventure path.</p>
+<h3>If you started a new thread (path B)</h3>
+<p>Save and publish your node, then tell your instructor its name so it can be connected to the start of the story.</p>
+<div class="box"><strong>Only edit your own words</strong>You are adding a link to someone else's node, not rewriting it. Please leave their text, image and audio exactly as they are.</div>
+
+<h2 id="share">Step 6: Save and publish</h2>
+<p>The order matters:</p>
+<ol class="steps">
+  <li>Tap <span class="tag">Apply Changes</span> at the bottom of the Editor. This keeps your edits.</li>
+  <li>Tap <span class="tag">Save</span> at the top. Your work is now stored for the class.</li>
+  <li>Tap <span class="tag">Publish</span> at the top. This rebuilds the public story so others can find your node.</li>
+</ol>
+<p>After you publish, give it a minute or two, then reload <a href="../">the reader</a>. Your node should be there.</p>
+
+<h2 id="fixes">If something goes wrong</h2>
+<table>
+  <tr><th>Problem</th><th>Try this</th></tr>
+  <tr><td>Map ignores my taps</td><td>Tap an existing blue dot, or the Passages tab, then tap the map again.</td></tr>
+  <tr><td>I cannot find my node in the reader</td><td>Did you press Publish? Wait a couple of minutes and reload. Then check that another node links to yours.</td></tr>
+  <tr><td>I do not see a classmate's new node</td><td>Tap <span class="tag">Reload</span> at the top of the authoring tool.</td></tr>
+  <tr><td>It says someone else is editing a node</td><td>Only one person can edit a node at a time. Wait two minutes and try again.</td></tr>
+  <tr><td>The compass does nothing on my phone</td><td>Tap Enable compass and allow motion access. On iPhone it must be granted each time you open the page.</td></tr>
+  <tr><td>The story point will not open when I arrive</td><td>Stay still for the dwell time, and check that location is on and accurate. GPS can drift by 10 m or more, so authors should not set the radius too small.</td></tr>
+  <tr><td>I made a mistake in my node</td><td>Reopen it, fix it, then Apply Changes, Save and Publish again.</td></tr>
+</table>
+<p>Still stuck? Email your instructor: <a href="mailto:jonathancarroll@nscad.ca">jonathancarroll@nscad.ca</a></p>
+
+<h2 id="words">Words you will see</h2>
+<table>
+  <tr><td><strong>Node / story point / passage</strong></td><td>One location with its text, image and audio. These all mean the same thing.</td></tr>
+  <tr><td><strong>Radius</strong></td><td>How close you need to be to trigger a node.</td></tr>
+  <tr><td><strong>Dwell</strong></td><td>How long you need to stay in the radius before it opens.</td></tr>
+  <tr><td><strong>Linked passage</strong></td><td>A node that a reader is pointed to next by the compass.</td></tr>
+  <tr><td><strong>Exquisite corpse</strong></td><td>A collaborative game in which each person adds to a work after seeing only a little of what came before.</td></tr>
+</table>
+
+<footer>Built on Twine and SugarCube. Made for site-specific writing.</footer>
+</main></div>
+</body>
+</html>

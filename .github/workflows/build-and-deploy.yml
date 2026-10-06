@@ -54,6 +54,27 @@ jobs:
         run: |
           if [ -d author ]; then cp -r author build/author; fi
           if [ -d media ]; then cp -r media build/media; fi
+          if [ -d help ]; then cp -r help build/help; fi
+
+      - name: Link the help page from the reader and author tool
+        run: |
+          python3 - <<'PY'
+          p = 'build/index.html'
+          link = ('<a href="help/" style="position:fixed;right:10px;bottom:10px;z-index:99999;'
+                  'background:#d4d0c8;color:#000;font:bold 14px Arial,sans-serif;padding:10px 14px;'
+                  'border:2px solid #000;text-decoration:none">Help</a>')
+          s = open(p, encoding='utf-8').read()
+          i = s.rfind('</body>')
+          if i != -1 and 'href="help/"' not in s:
+              open(p, 'w', encoding='utf-8').write(s[:i] + link + s[i:])
+          a = 'build/author/index.html'
+          t = open(a, encoding='utf-8').read()
+          old = '  \U0001F5FA Spatial Narrative Author\n'
+          new = ('  \U0001F5FA Spatial Narrative Author <a href="../help/" '
+                 'style="margin-left:auto;color:#fff;font-weight:bold">Help</a>\n')
+          if old in t and '../help/' not in t:
+              open(a, 'w', encoding='utf-8').write(t.replace(old, new, 1))
+          PY
 
       - name: Verify output
         run: test -f build/index.html
