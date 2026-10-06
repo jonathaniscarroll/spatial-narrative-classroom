@@ -82,10 +82,10 @@
 <p>You do not need to wait for a group or a turn. Whenever you are ready, <strong>write one node</strong>. It can be fiction, poetry, prose, a sound, an image, or any mix. Write it <strong>at the place where you put it</strong> if you can, and use your surroundings as inspiration.</p>
 <p>Pick one of two ways to start:</p>
 <div class="choice">
-  <div><h3>A. Continue someone's node</h3>Read a classmate's node, take it as inspiration, then write a new node at a new place that follows from it. Afterwards you link <em>their</em> node to <em>yours</em>.</div>
-  <div><h3>B. Start a new thread</h3>Write your own node with no parent. Others can then link their nodes to yours. Tell your instructor so it can be connected to the start of the story.</div>
+  <div><h3>A. Continue someone's node</h3>Read a classmate's node, take it as inspiration, then write a new node at a new place that follows from it. Then add their node under <strong>Linked From</strong> on yours, so theirs points to yours.</div>
+  <div><h3>B. Start a new thread</h3>Write your own node and tick <strong>Linked from Start</strong> so readers can begin there. Others can then link their nodes to yours.</div>
 </div>
-<div class="box"><strong>Why linking matters</strong>A node nobody links to cannot be found by a reader. Readers only ever see nodes that the node they are standing in points to. Links are how the story grows.</div>
+<div class="box"><strong>Why linking matters</strong>A node nobody links to cannot be found by a reader. A reader who has not opened anything yet only sees nodes that are linked from <strong>Start</strong>. After that, they only see the nodes that the node they are standing in points to. Links are how the story grows.</div>
 
 <h2 id="read">Step 1: Read the story outside</h2>
 <p>Do this first so you know what already exists. Use your phone, outdoors, in a browser.</p>
@@ -129,19 +129,34 @@
 <p>Leave the remaining advanced fields alone for now unless your instructor asks you to use them.</p>
 
 <h2 id="link">Step 5: Link it to the story</h2>
-<p>Links do two things: they make your node findable, and they decide where the reader's compass points after your node opens.</p>
+<p>Links do two things: they make your node findable, and they decide where the reader's compass points after your node opens. Near the bottom of the Editor there are <strong>two lists</strong> and a checkbox.</p>
+
+<h3>Linked Passages vs. Linked From</h3>
+<table>
+  <tr><th>Setting</th><th>What it means</th></tr>
+  <tr><td><strong>Linked Passages</strong></td><td>Nodes <em>this</em> node points to (outgoing). After a reader opens your node, the compass points to these.</td></tr>
+  <tr><td><strong>Linked From</strong></td><td>Nodes that point <em>to</em> your node (incoming). This is how readers arrive at yours. It lists everything that currently links here, and you can add more.</td></tr>
+  <tr><td><strong>Linked from Start</strong></td><td>A checkbox. When ticked, a reader who has not opened anything yet can begin at your node. It also shows up as a <strong>Start</strong> chip under Linked From.</td></tr>
+</table>
+<p>To add to either list, choose a node from the drop-down under it. To remove one, tap the <strong>&#10005;</strong> on its chip.</p>
+
 <h3>If you continued someone's node (path A)</h3>
 <ol class="steps">
-  <li>Finish your own node first, then tap <span class="tag">Apply Changes</span>, <span class="tag">Save</span> and <span class="tag">Publish</span> (step 6).</li>
-  <li>Open <strong>their</strong> node from the Passages tab.</li>
-  <li>In <strong>Linked Passages</strong>, add <strong>your node's name</strong>.</li>
-  <li>Tap <span class="tag">Apply Changes</span>, then <span class="tag">Save</span>.</li>
+  <li>Open <strong>your</strong> node.</li>
+  <li>Under <strong>Linked From</strong>, choose your classmate's node from the drop-down. Their node now points to yours.</li>
+  <li>Tap <span class="tag">Apply Changes</span>, then <span class="tag">Save</span> and <span class="tag">Publish</span> (step 6).</li>
 </ol>
+<div class="box"><strong>Why this also saves their node</strong>A link is stored inside the node it starts from. So when you add your classmate's node under Linked From, the tool adds one link to <em>their</em> node, and Save writes that small change too. It only adds a link; their words, image and audio stay exactly as they are. Please do not edit anything else in their node.</div>
+
 <h3>If you want your node to lead somewhere</h3>
-<p>Open your own node and, in <strong>Linked Passages</strong>, choose one or more nodes the reader should be pointed toward next. Link to several nodes and you create a branching, choose-your-own-adventure path.</p>
-<h3>If you started a new thread (path B)</h3>
-<p>Save and publish your node, then tell your instructor its name so it can be connected to the start of the story.</p>
-<div class="box"><strong>Only edit your own words</strong>You are adding a link to someone else's node, not rewriting it. Please leave their text, image and audio exactly as they are.</div>
+<p>Under <strong>Linked Passages</strong>, choose one or more nodes the reader should be pointed toward next. Link to several and you create a branching, choose-your-own-adventure path.</p>
+
+<h3>If you started a new thread (path B): Linked from Start</h3>
+<p>Tick <strong>Linked from Start</strong>. Readers who have not opened any node yet will then see yours on the compass. Only tick it if your node works as a place to <em>begin</em>. If it continues someone else's node, use path A and leave it unticked, so new readers are not sent into the middle of the story.</p>
+<p>Nodes are no longer linked from Start automatically, so a node without a Start tick and without any Linked From entry cannot be found by readers.</p>
+
+<h3>Removing a Start link</h3>
+<p>Untick <strong>Linked from Start</strong>, or tap the <strong>&#10005;</strong> on the <strong>Start</strong> chip under Linked From. Then tap <span class="tag">Apply Changes</span>, <span class="tag">Save</span> and <span class="tag">Publish</span>. Make sure your node still has at least one other way in, or readers will lose access to it.</p>
 
 <h2 id="share">Step 6: Save and publish</h2>
 <p>The order matters:</p>
@@ -156,9 +171,12 @@
 <table>
   <tr><th>Problem</th><th>Try this</th></tr>
   <tr><td>Map ignores my taps</td><td>Tap an existing blue dot, or the Passages tab, then tap the map again.</td></tr>
-  <tr><td>I cannot find my node in the reader</td><td>Did you press Publish? Wait a couple of minutes and reload. Then check that another node links to yours.</td></tr>
+  <tr><td>I cannot find my node in the reader</td><td>Did you press Publish? Wait a couple of minutes and reload. Then check the node is reachable (next row).</td></tr>
+  <tr><td>Nobody can reach my node</td><td>Open it and look at <strong>Linked From</strong>. It needs at least one entry: a classmate's node, or Start. If it is empty, add a node there or tick <strong>Linked from Start</strong>, then Apply Changes, Save and Publish.</td></tr>
+  <tr><td>New readers do not see my node at the start</td><td>It is not ticked <strong>Linked from Start</strong>. Tick it only if it is a good place to begin.</td></tr>
   <tr><td>I do not see a classmate's new node</td><td>Tap <span class="tag">Reload</span> at the top of the authoring tool.</td></tr>
-  <tr><td>It says someone else is editing a node</td><td>Only one person can edit a node at a time. Wait two minutes and try again.</td></tr>
+  <tr><td>It says someone else is editing a node</td><td>Only one person can edit a node at a time. This also happens when you add a link from their node to yours, since that edits their node. Wait two minutes and press Save again. If it keeps happening, tell your instructor.</td></tr>
+  <tr><td>I added a link by mistake</td><td>Tap the &#10005; on that chip in Linked Passages or Linked From, then Apply Changes, Save and Publish.</td></tr>
   <tr><td>The compass does nothing on my phone</td><td>Tap Enable compass and allow motion access. On iPhone it must be granted each time you open the page.</td></tr>
   <tr><td>The story point will not open when I arrive</td><td>Stay still for the dwell time, and check that location is on and accurate. GPS can drift by 10 m or more, so authors should not set the radius too small.</td></tr>
   <tr><td>I made a mistake in my node</td><td>Reopen it, fix it, then Apply Changes, Save and Publish again.</td></tr>
@@ -170,7 +188,9 @@
   <tr><td><strong>Node / story point / passage</strong></td><td>One location with its text, image and audio. These all mean the same thing.</td></tr>
   <tr><td><strong>Radius</strong></td><td>How close you need to be to trigger a node.</td></tr>
   <tr><td><strong>Dwell</strong></td><td>How long you need to stay in the radius before it opens.</td></tr>
-  <tr><td><strong>Linked passage</strong></td><td>A node that a reader is pointed to next by the compass.</td></tr>
+  <tr><td><strong>Linked Passages</strong></td><td>Nodes this node points to. The compass shows them after this node opens.</td></tr>
+  <tr><td><strong>Linked From</strong></td><td>Nodes that point to this node. Also called incoming links.</td></tr>
+  <tr><td><strong>Start</strong></td><td>The opening of the story. Nodes linked from Start are where a new reader can begin.</td></tr>
   <tr><td><strong>Exquisite corpse</strong></td><td>A collaborative game in which each person adds to a work after seeing only a little of what came before.</td></tr>
 </table>
 
