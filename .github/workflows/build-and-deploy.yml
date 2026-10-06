@@ -43,6 +43,33 @@ jobs:
           grep -q '^:: Start' story/content.twee
           grep -c '^:: ' story/content.twee
 
+      - name: Turn @fromstart flags into links in Start
+        run: |
+          python3 - <<'PY'
+          import re
+          p = 'story/content.twee'
+          parts = re.split(r'(?m)^(?=:: )', open(p, encoding='utf-8').read())
+          flagged, out = [], []
+          for part in parts:
+              lines = part.split('\n')
+              if part.startswith(':: ') and any(l.strip() == '@fromstart' for l in lines):
+                  name = re.sub(r'\s*\[[^\]]*\]\s*$', '', lines[0][3:]).strip()
+                  flagged.append(name)
+                  part = '\n'.join(l for l in lines if l.strip() != '@fromstart')
+              out.append(part)
+          res = []
+          for part in out:
+              if re.match(r':: Start\s*(\[[^\]]*\])?\s*\n', part):
+                  have = set(re.findall(r'\[\[([^\]|]+)', part))
+                  add = [n for n in flagged if n != 'Start' and n not in have]
+                  if add:
+                      part = part.rstrip('\n') + '\n\n' + '\n'.join('[[' + n + ']]' for n in add) + '\n\n'
+              res.append(part)
+          open(p, 'w', encoding='utf-8').write(''.join(res))
+          print('passages linked from Start via @fromstart:', len(flagged))
+          PY
+          ! grep -q '^@fromstart' story/content.twee
+
       - name: Build story
         env:
           TWEEGO_PATH: vendor/storyformats
@@ -74,6 +101,17 @@ jobs:
                  'style="margin-left:auto;color:#fff;font-weight:bold">Help</a>\n')
           if old in t and '../help/' not in t:
               open(a, 'w', encoding='utf-8').write(t.replace(old, new, 1))
+          PY
+
+      - name: Load author extras
+        run: |
+          python3 - <<'PY'
+          a = 'build/author/index.html'
+          t = open(a, encoding='utf-8').read()
+          i = t.rfind('</body>')
+          if i == -1 or 'extras.js' in t:
+              raise SystemExit('could not add extras.js')
+          open(a, 'w', encoding='utf-8').write(t[:i] + '<script src="extras.js"></script>\n' + t[i:])
           PY
 
       - name: Verify output
